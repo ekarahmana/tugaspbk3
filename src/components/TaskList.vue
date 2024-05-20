@@ -1,4 +1,3 @@
-<!-- TaskList.vue -->
 <template>
   <div class="app">
     <h1>Daftar Kegiatan</h1>
@@ -8,12 +7,14 @@
     </div>
     <div>
       <button @click="showIncomplete = false">Tampilkan semua</button>
-      <button @click="showIncomplete = true">filter</button>
+      <button @click="showIncomplete = true">Filter</button>
     </div>
     <ul>
       <li v-for="(activity, index) in filteredActivities" :key="index">
         <input type="checkbox" v-model="activity.completed">
-        <span :class="{ 'completed': activity.completed }">{{ activity.name }}</span>
+        <span v-if="!activity.editable" :class="{ 'completed': activity.completed }">{{ activity.name }}</span>
+        <input v-if="activity.editable" v-model="activity.name" @keyup.enter="toggleEdit(index)" />
+        <button @click="toggleEdit(index)">{{ activity.editable ? 'Simpan' : 'Edit' }}</button>
         <button @click="cancelActivity(index)">Batalkan</button>
       </li>
     </ul>
@@ -26,21 +27,18 @@ export default {
     return {
       newActivity: '',
       activities: [],
-      showIncomplete: false,
-      text: 'initial text',
-      sliderVal: 50,
-      renderCount: 0
+      showIncomplete: false
     };
-  },
-  created() {
-    this.text = 'The component is now created';
   },
   methods: {
     addActivity() {
       if (this.newActivity.trim() !== '') {
-        this.activities.push({ name: this.newActivity, completed: false });
+        this.activities.push({ name: this.newActivity, completed: false, editable: false });
         this.newActivity = '';
       }
+    },
+    toggleEdit(index) {
+      this.activities[index].editable = !this.activities[index].editable;
     },
     cancelActivity(index) {
       this.activities.splice(index, 1);
@@ -49,15 +47,11 @@ export default {
   computed: {
     filteredActivities() {
       if (this.showIncomplete) {
-        return this.activities.filter(activity => !activity.completed);
+        return this.activities.filter(activity => activity.completed);
       } else {
         return this.activities;
       }
     }
-  },
-  updated() {
-    this.renderCount++;
-    console.log('Updated ' + this.renderCount + ' times.');
   }
 };
 </script>
