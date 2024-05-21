@@ -1,45 +1,63 @@
 <template>
   <div>
-    <h2>Postingan</h2>
-    <div v-if="loading">Loading...</div>
-    <div v-else>
-      <select v-model="selectedUser">
-        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-      </select>
-      <div v-if="selectedUser !== null">
-        <h3 v-for="post in filteredPosts" :key="post.id">{{ post.title }}</h3>
+    <h2>Post</h2>
+    <label for="userSelect">Select User:</label>
+    <select v-model="selectedUser" @change="getUserPosts">
+      <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+    </select>
+    <div v-if="userPosts.length > 0">
+      <div v-for="post in userPosts" :key="post.id">
+        <h3>{{ post.title }}</h3>
+        <p>{{ post.body }}</p>
       </div>
+    </div>
+    <div v-else>
+      <p>No posts available.</p>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      loading: false,
-      users: [],
-      posts: [],
-      selectedUser: null
-    };
-  },
-  async created() {
-    this.loading = true;
-    // Fetch data users
-    const usersResponse = await fetch('https://jsonplaceholder.typicode.com/users');
-    this.users = await usersResponse.json();
+<script setup>
+import { ref, onMounted, watch } from 'vue';
 
-    // Fetch data postingan
-    const postsResponse = await fetch('https://jsonplaceholder.typicode.com/posts');
-    this.posts = await postsResponse.json();
+const selectedUser = ref(null);
+const users = ref([]);
+const userPosts = ref([]);
 
-    this.loading = false;
-  },
-  computed: {
-    filteredPosts() {
-      if (this.selectedUser === null) return [];
-      return this.posts.filter(post => post.userId === this.selectedUser);
+const getUsers = async () => {
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/users');
+    if (!response.ok) throw new Error('Network response was not ok');
+    const data = await response.json();
+    users.value = data;
+    if (data.length > 0) {
+      selectedUser.value = data[0].id; // Set default selected user
     }
+  } catch (error) {
+    console.error('Error fetching users:', error);
   }
 };
+
+const getUserPosts = async () => {
+  try {
+    if (selectedUser.value !== null) {
+      const response = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${selectedUser.value}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const data = await response.json();
+      userPosts.value = data;
+    }
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+  }
+};
+
+onMounted(() => {
+  getUsers();
+});
+
+watch(selectedUser, (newValue, oldValue) => {
+  if (newValue !== null) {
+    getUserPosts();
+  }
+});
 </script>
