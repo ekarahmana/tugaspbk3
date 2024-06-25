@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <h1>Daftar Kegiatan</h1>
+    <h1>TODOS</h1>
     <div class="input-container">
       <input v-model="newActivity" placeholder="Tambah kegiatan baru">
       <button @click="addActivity">Tambah</button>
@@ -47,7 +47,7 @@ export default {
   computed: {
     filteredActivities() {
       if (this.showIncomplete) {
-        return this.activities.filter(activity => activity.completed);
+        return this.activities.filter(activity => !activity.completed);
       } else {
         return this.activities;
       }
@@ -57,7 +57,61 @@ export default {
 </script>
 
 <style scoped>
+.app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #333;
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #1e88e5;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #1565c0;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
 .completed {
   text-decoration: line-through;
+  color: #757575;
 }
 </style>
